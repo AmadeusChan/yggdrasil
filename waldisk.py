@@ -21,6 +21,7 @@ class WALDisk(object):
         self._osync = osync
         self._logdisk = logdisk
         self._datadisks = datadisks[:]
+        #print "*********** init WALDisk"
         self.__recover()
         self._txn = None
         self._cache = Dict()
@@ -61,13 +62,13 @@ class WALDisk(object):
 
     # pre: log header empty
     #      len(iov) <= LOG_MAX_ENTRIES
-    @cython.locals(iov_len='uint64_t')
+    @cython.locals(iov_len='unsigned long long')
     @cython.locals(hdr_bid='Block')
     @cython.locals(hdr_dev='Block')
-    @cython.locals(dev='uint64_t')
-    @cython.locals(bid='uint64_t')
+    @cython.locals(dev='unsigned long long')
+    @cython.locals(bid='unsigned long long')
     @cython.locals(block='Block')
-    @cython.locals(i='uint64_t')
+    @cython.locals(i='unsigned long long')
     @cython.locals(dd='PartitionAsyncDisk')
     def writev(self, iov):
         iov_len = len(iov)

@@ -174,6 +174,7 @@ def main():
     else:
         fargs = []
 
+    print "******** before"
     inode_obj = create_lfs(fargs)
 
     cdef int argc = len(sys.argv)

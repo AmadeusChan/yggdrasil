@@ -104,7 +104,12 @@ cdef class Block:
 cdef class AsyncDisk:
     def __cinit__(self, char* fn, mode_t mode=O_RDWR):
         self.fn = fn
+        print "fn = ", fn
         self.fd = open(fn, mode, 0666)
+        assert self.fd != -1, "async disk: open fn error"
+        print "fd = ", self.fd
+        #self.read(1)
+        print "finished read"
 
     def __dealloc__(self):
         close(self.fd)
@@ -115,12 +120,15 @@ cdef class AsyncDisk:
             return
         assert block.size == BLOCKSIZE / sizeof(uint64_t), "async disk: writing a block with invalid size"
         cdef ssize_t nbytes = pwrite(self.fd, block.buf, BLOCKSIZE, blknum * BLOCKSIZE)
+        print "write nbytes = ", nbytes
         assert nbytes == BLOCKSIZE, "async disk: could not write entire nbytes"
 
     cpdef Block read(self, uint64_t blknum):
+        print "blknum = ", blknum
         cdef Block block = Block(BLOCKSIZE)
         cdef char* buf = <char*>block.buf
         cdef ssize_t nbytes = pread(self.fd, buf, BLOCKSIZE, blknum * BLOCKSIZE)
+        print "read nbytes = ", nbytes
         assert nbytes == BLOCKSIZE, "async disk: could not read entire blocksize"
         return block
 

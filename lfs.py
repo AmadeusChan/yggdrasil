@@ -181,6 +181,8 @@ def mkfs(disk):
 
 
 def create_lfs(*args):
+    print "*********************** before ************************"
+
     disk = AsyncDisk('/tmp/foo.img')
     lfs = LFS(disk)
     mkfs(lfs)

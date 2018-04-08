@@ -3,8 +3,8 @@ import sys
 import time
 
 files = [
-    ('test_waldisk.py ', 'WAL Layer'),
-    ('test_xv6inode.py', 'Inode layer'),
+    ('test_waldisk.py', 'WAL Layer'),
+    ('test_xv6inode.py ', 'Inode layer'),
     ('test_dirspec.py', 'Directory layer'),
     ('test_bitmap.py', 'Bitmap disk refinement'),
     ('test_inodepack.py', 'Inode disk refinement'),

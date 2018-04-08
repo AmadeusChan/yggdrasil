@@ -457,7 +457,9 @@ def main():
     else:
         fargs = []
 
+    print "*********************** hello before world ************************"
     inode_obj = create_fuse_inode(fargs)
+    print "*********************** hello after world ************************"
 
     cdef int argc = len(sys.argv)
     cdef char** argv = <char**>malloc(argc * sizeof(char**))
@@ -468,6 +470,7 @@ def main():
     for i in range(argc):
         argv[i] = sys.argv[i]
 
+    print "to cmain ..."
     cmain(argc, argv)
 
 
@@ -513,18 +516,27 @@ cdef int cmain(int argc, char **argv):
     ops.readlink = &ll_readlink
 
     if fuse_parse_cmdline(&args, &mountpoint, NULL, NULL) != -1:
+        print "to mount"
         ch = fuse_mount(mountpoint, &args)
         if ch != NULL:
             se = fuse_lowlevel_new(&args, &ops, sizeof(ops), NULL)
+            print "finished mount"
 
             if se != NULL:
+                print "a"
                 if fuse_set_signal_handlers(se) != -1:
                     fuse_session_add_chan(se, ch)
+                    print "1"
                     err = fuse_session_loop(se)
+                    print "2"
                     fuse_remove_signal_handlers(se)
+                    print "3"
                     fuse_session_remove_chan(ch)
+                print "b"
                 fuse_session_destroy(se)
+                print "c"
             fuse_unmount(mountpoint, ch)
+            print "d"
 
     fuse_opt_free_args(&args)
 

@@ -22,8 +22,8 @@ class InodePackDisk(object):
     def read(self, ino):
         return self._disk.read(LShR(ino, 5))
 
-    @cython.locals(off='uint64_t')
-    @cython.locals(bid='uint64_t')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(bid='unsigned long long')
     def set_iattr(self, ino, attr, block=None):
         off = Extract(8, 0, ino * 16)
         bid = LShR(ino, 5) # UDiv(ino, 32)
@@ -39,8 +39,8 @@ class InodePackDisk(object):
         inode[self.NLINK + off] = attr.nlink
         self._disk.write(bid, inode)
 
-    @cython.locals(off='uint64_t')
-    @cython.locals(bid='uint64_t')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(bid='unsigned long long')
     def get_iattr(self, ino, block=None):
         off = Extract(8, 0, ino * 16)
         bid = LShR(ino, 5) # UDiv(ino, 32)
@@ -55,8 +55,8 @@ class InodePackDisk(object):
                 inode[off + self.MODE],
                 inode[off + self.NLINK])
 
-    @cython.locals(ioff='uint64_t')
-    @cython.locals(bid='uint64_t')
+    @cython.locals(ioff='unsigned long long')
+    @cython.locals(bid='unsigned long long')
     def set_mapping(self, ino, off, ptr, block=None):
         assertion(ULT(off, 11))
 
@@ -76,8 +76,8 @@ class InodePackDisk(object):
             return 0
         return self._get_mapping(ino, off, block)
 
-    @cython.locals(ioff='uint64_t')
-    @cython.locals(bid='uint64_t')
+    @cython.locals(ioff='unsigned long long')
+    @cython.locals(bid='unsigned long long')
     def _get_mapping(self, ino, off, block=None):
         ioff = Extract(8, 0, ino * 16)
         bid = LShR(ino, 5) # UDiv(ino, 32)

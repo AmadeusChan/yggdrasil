@@ -77,13 +77,13 @@ class InodeDisk(object):
     def write(self, lbn, data):
         self._txndisk.write_tx(self.DATADISK, lbn, data)
 
-    @cython.locals(ino='uint64_t')
-    @cython.locals(off='uint64_t')
-    @cython.locals(eoff='uint64_t')
+    @cython.locals(ino='unsigned long long')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(eoff='unsigned long long')
     def mappingi(self, vbn):
         ino = Extract(64 - 1, 32, vbn)
-        # ino = cython.type('uint64_t')
-        # assertion ino.size() / 8 == sizeof(uint64_t)
+        # ino = cython.type('unsigned long long')
+        # assertion ino.size() / 8 == sizeof(unsigned long long)
         off = Extract(32 - 1, 0, vbn)
         eoff = Extract(9 - 1, 0, vbn)
         return If(ULT(off, self._NDIRECT),
@@ -95,7 +95,7 @@ class InodeDisk(object):
     def is_free(self, lbn):
         return Not(self._bitmap.is_set(lbn))
 
-    @cython.locals(lbn='uint64_t')
+    @cython.locals(lbn='unsigned long long')
     def alloc(self):
         # black box allocator returns a vbn
         lbn = self._allocator.alloc()
@@ -108,13 +108,13 @@ class InodeDisk(object):
     def free(self, lbn):
         self._bitmap.unset_bit(lbn)
 
-    @cython.locals(ino='uint64_t')
-    @cython.locals(off='uint64_t')
-    @cython.locals(eoff='uint64_t')
+    @cython.locals(ino='unsigned long long')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(eoff='unsigned long long')
     @cython.locals(iblock='Block')
-    @cython.locals(old_lbn='uint64_t')
+    @cython.locals(old_lbn='unsigned long long')
     @cython.locals(valid='bint')
-    @cython.locals(lbn='uint64_t')
+    @cython.locals(lbn='unsigned long long')
     def bmap(self, vbn):
         ino = Extract(64 - 1, 32, vbn)
         off = Extract(32 - 1, 0, vbn)
@@ -140,11 +140,11 @@ class InodeDisk(object):
             return old_lbn
         return 0
 
-    @cython.locals(ino='uint64_t')
-    @cython.locals(off='uint64_t')
-    @cython.locals(eoff='uint64_t')
+    @cython.locals(ino='unsigned long long')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(eoff='unsigned long long')
     @cython.locals(iblock='Block')
-    @cython.locals(lbn='uint64_t')
+    @cython.locals(lbn='unsigned long long')
     def bunmap(self, vbn):
         ino = Extract(64 - 1, 32, vbn)
         off = Extract(32 - 1, 0, vbn)
@@ -199,15 +199,15 @@ class IndirectInodeDisk(object):
     def commit_tx(self):
         self._idisk.commit_tx()
 
-    @cython.locals(ndir='uint64_t')
-    @cython.locals(ino='uint64_t')
-    @cython.locals(off='uint64_t')
+    @cython.locals(ndir='unsigned long long')
+    @cython.locals(ino='unsigned long long')
+    @cython.locals(off='unsigned long long')
     @cython.locals(is_direct='bint')
-    @cython.locals(off='uint64_t')
-    @cython.locals(off='uint64_t')
-    @cython.locals(vbnm='uint64_t')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(vbnm='unsigned long long')
     @cython.locals(ind_mapped='bint')
-    @cython.locals(ind_mapping='uint64_t')
+    @cython.locals(ind_mapping='unsigned long long')
     @cython.locals(ind_block='Block')
     def mappingi(self, vbn):
         ndir = self._idisk._NDIRECT
@@ -233,13 +233,13 @@ class IndirectInodeDisk(object):
     def is_free(self, lbn):
         return self._idisk.is_free(lbn)
 
-    @cython.locals(ino='uint64_t')
-    @cython.locals(off='uint64_t')
-    @cython.locals(eoff='uint64_t')
-    @cython.locals(mapping='uint64_t')
+    @cython.locals(ino='unsigned long long')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(eoff='unsigned long long')
+    @cython.locals(mapping='unsigned long long')
     @cython.locals(imap='Block')
-    @cython.locals(old_lbn='uint64_t')
-    @cython.locals(lbn='uint64_t')
+    @cython.locals(old_lbn='unsigned long long')
+    @cython.locals(lbn='unsigned long long')
     def bmap(self, vbn):
         ino = Extract(64 - 1, 32, vbn)
         off = Extract(32 - 1, 0, vbn)
@@ -274,12 +274,12 @@ class IndirectInodeDisk(object):
         return old_lbn
 
 
-    @cython.locals(ino='uint64_t')
-    @cython.locals(off='uint64_t')
-    @cython.locals(eoff='uint64_t')
-    @cython.locals(mapping='uint64_t')
+    @cython.locals(ino='unsigned long long')
+    @cython.locals(off='unsigned long long')
+    @cython.locals(eoff='unsigned long long')
+    @cython.locals(mapping='unsigned long long')
     @cython.locals(imap='Block')
-    @cython.locals(lbn='uint64_t')
+    @cython.locals(lbn='unsigned long long')
     def bunmap(self, vbn):
         ino = Extract(64 - 1, 32, vbn)
         off = Extract(32 - 1, 0, vbn)
@@ -355,6 +355,7 @@ def create_partition(disk, size, debug=False):
 
 
 def create_fuse_inode(args):
+    print args
     parser = argparse.ArgumentParser(description='Yxv6')
 
     parser.add_argument('imgpath', metavar='PATH', type=str, help='Path to fs image')
@@ -365,6 +366,7 @@ def create_fuse_inode(args):
 
     args = parser.parse_args(args)
 
+    print "args.imgpath = ", args.imgpath
     disk = AsyncDisk(args.imgpath)
 
     isize = args.isize
@@ -382,6 +384,7 @@ def create_fuse_inode(args):
     logdisk = create_partition(disk, 1027)
     orphandisk = create_partition(disk, 1)
 
+    print "************ I am here"
     txndisk = WALDisk(logdisk, [freedisk, inodedisk, inodedisk, datadisk, ifreedisk, orphandisk], osync=args.sync)
     idisk = InodeDisk(txndisk, Allocator, BitmapDisk, InodePackDisk)
     idisk._INODEDATADISK = idisk.INODEMETADISK
